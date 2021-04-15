@@ -1,21 +1,39 @@
-// xy = (10^n)ac + (10^(n/2))(ad + bc) + bd
-var x = 5678;
-var y = 1234;
-x = x.toString();
-y = y.toString();
-var a = x.substring(0, 2);
-var b = x.substring(2, 4);
-var c = y.substring(0, 2);
-var d = y.substring(2, 4);
-// Step 1: Compute ac
-var step1 = a * c; //672
-// Step 2: Compute bd
-var step2 = b * d; //2652
-// Step 3: Compute ad + bc
-var step3 = (a*d) + (b*c); //2840
-// Product of values
-var result1 = parseInt(step1.toString() + '0000');
-var result2 = parseInt(step3.toString() + '00');
-var total = result1 + step2 + result2;
-console.log(total);
+const numbers = process.argv.slice(2);
+var x, y;
+if (numbers.length == 2) {
+  x = parseInt(numbers[0]);
+  y = parseInt(numbers[1]);
+} else {
+  console.log('Error, please try using x and y numbers');
+  return -1;
+}
+
+function karatsuba(num1, num2) {
+  if (num1 < 10 || num2 < 10) return num1 * num2;
+  const len = Math.min(num1.toString().length, num2.toString().length);
+  const m2 = Math.ceil(len / 2);
+
+  const [a, b] = splitNumber(num1, m2);
+  const [c, d] = splitNumber(num2, m2);
+
+  const ac = karatsuba(a, c);
+  const bd = karatsuba(b, d);
+  const abPlusCd = karatsuba(a + b, c + d);
+  const result = abPlusCd - ac - bd;
+
+  return (ac * (10 ** (m2 * 2))) + (result * (10 ** m2)) + bd;
+}
+
+function splitNumber(number, index) {
+  if (number < 10 || !isFinite(number)) throw Error(`Cannot split number ${number}`);
+  number = number.toString();
+  const left = number.substring(0, number.length - index);
+  const right = number.substring(number.length - index, number.length);
+
+  return [parseInt(left), parseInt(right)];
+}
+
+const total = karatsuba(x, y);
+console.log(`Total Karatsuba is: ${total}`);
+console.log(`Total Real is: ${x * y}`);
 return total;
